@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "node tools/copy-webviewer-files.js"
+    "postinstall": "node tools/copy-webviewer-files.js",
+    "heroku-postbuild": "ng build --prod"
   },
   "private": true,
   "dependencies": {
