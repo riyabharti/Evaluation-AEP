@@ -82,7 +82,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     //this.wvInstance.annotManager.deleteAnnotation(this.sum_annot);
     const rectangle = new Annotations.FreeTextAnnotation();
     rectangle.PageNumber = 1;
-    rectangle.X = 500;
+    rectangle.X = 400;
     rectangle.Y = 10;
     rectangle.Width = 100;
     rectangle.Height = 100;
