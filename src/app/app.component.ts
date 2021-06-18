@@ -19,7 +19,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     WebViewer({
       path: '../lib',
-      initialDoc: '../files/webviewer-demo-annotated.pdf'
+      initialDoc: '../files/helper.pdf'
     }, this.viewer.nativeElement).then(instance => {
       document.getElementById('file-picker').onchange = function(e?: HTMLInputEvent) {
         const file = e.target.files[0];
@@ -27,7 +27,8 @@ export class AppComponent implements OnInit, AfterViewInit {
           instance.loadDocument(file);
         }
       };
-      instance.disableElements(['toolbarGroup-Shapes','toolbarGroup-Edit','stickyToolGroupButton']);
+      instance.disableElements(['toolbarGroup-Shapes','toolbarGroup-Edit',
+      'stickyToolGroupButton','fileAttachmentToolGroupButton','calloutToolGroupButton']);
       
       this.wvInstance = instance;
       // now you can access APIs through this.webviewer.getInstance()
