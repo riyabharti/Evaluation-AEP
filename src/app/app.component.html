@@ -1,19 +1,76 @@
-<div class="page">
+<div class="page" [formGroup]="nameForm" *ngIf="nameForm">
+  
   <div class="row header">
-    <div class="col-sm-4 pl-8" style="font-family:'Times New Roman', Times, serif; font-size: larger;">
-      Evaluation Tool for answer scripts:
-    </div>
-    <div class="custom-file col-sm-4">
-      <input id="file-picker" type="file" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.pptx,.md" />
-    </div>
-    <div class="col-sm-2"></div>
-    <div class="col-sm-2">
-      <button type="button" class="btn btn-success" (click)="finalSum()">Calculate Marks</button>
-    </div>
-  <hr />
+  <div class="col-sm-2 pl-8" style="font-family:'Times New Roman', Times, serif; font-size:x-large;">
+    Evaluation Tool 
   </div>
-  
-  
-  <div #viewer class="viewer">
+  <div class="custom-file col-sm-2">
+    <input id="file-picker" type="file" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.pptx,.md" />
   </div>
+  <div class="col-sm-3 pl-0 pr-8">
+    <div class="form-group">
+    <label for="name" class="required">Name: </label>
+    <input type="text" id="name" name="name" class = "textbx" formControlName="name">
+  </div>
+  </div>
+  <div class="col-sm-3 pl-8">
+    <div class="form-group">
+    <label for="roll" class="required">Roll.No: </label>
+    <input type="text" id="roll" name="roll" class = "textbx" formControlName="roll">
+  </div>
+  </div>
+  <div class="col-sm-2">
+    <button type="button" class="btn btn-success" (click)="finalSum()" [disabled]="nameForm.invalid">Calculate Marks</button>
+  </div>
+<hr />
+</div>
+
+<div class = "row header" >
+  
+  <div class="col-sm-3 pl-8">
+    <div class="form-group">
+    <label for="subCode" class="required">Subject Code: </label>
+    <input type="text" id="subCode" name="subCode" class = "textbx" formControlName="subCode" pattern="^[A-Za-z0-9]*$">
+    <div *ngIf="nameForm.controls['subCode'].errors?.pattern">
+      Subject Code not valid!!
+    </div>
+  </div>
+ 
+
+  </div>
+
+  <div class="col-sm-3 pl-8">
+    <div class="form-group">
+    <label for="sec" class="required">Section: </label>
+    <input type="text" id="sec" name="sec" class = "textbx"  formControlName="sec">
+  </div>
+</div>
+  
+  <div class="col-sm-3 pl-8">
+    <div class="form-group">
+    <label for="examName" class="required">Exam Name: </label>
+    <input type="text" id="examName" name="examName" class = "textbx" formControlName="examName" pattern="^[A-Za-z0-9]*$"> 
+    <div *ngIf="nameForm.controls['examName'].errors?.pattern">
+      Exam name not valid!!
+    </div>
+  </div>
+</div>
+
+  <div class="col-sm-3">
+    <button type="button" class="btn btn-success" (click)="downloadMarks()" [disabled]="(nameForm.controls['examName'].status == 'INVALID') || (nameForm.controls['sec'].status == 'INVALID') || (nameForm.controls['subCode'].status == 'INVALID')">Download Marks</button>
+  </div>
+
+
+</div> 
+<div class = "row header" >
+  <div class="col-sm-2" style="font-family:'Times New Roman', Times, serif; font-size:large;color:red">
+    <b> * Mandatory</b>
+  </div>
+  <div class="col-sm-10" style="font-family:'Times New Roman', Times, serif; font-size:large;color:red">
+    <b> NOTE: No special character or '-' or space is allowed in Subject Code, Section and Exam Name !!</b>
+ </div>
+</div>
+
+<div #viewer class="viewer">
+</div>
 </div>

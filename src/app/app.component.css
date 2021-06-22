@@ -47,3 +47,24 @@ app-webviewer {
 .custom-file-input:active::before {
   background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
 }
+
+.textbx{
+  width: 50%;
+  height: 35px;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  border: 2px solid #ccc;
+  background-color: #f8f8f8;
+  resize: none;
+  color: #000000;
+  display: inline-block;
+}
+
+
+.required:after {
+  content:" *";
+  color: red;
+  font-size: 30px;
+}
+
+  

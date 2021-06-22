@@ -1,5 +1,7 @@
-import { Component, ViewChild, OnInit, ElementRef, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import WebViewer from '@pdftron/webviewer';
+import { Marksheet } from "./marksheet.model";
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -10,13 +12,34 @@ interface HTMLInputEvent extends Event {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
+
 export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('viewer') viewer: ElementRef;
-  // @ViewChild('picker') picker: ElementRef;
+  
   wvInstance: any;
+  
+  marksheet: Marksheet = new Marksheet();
+  downloadMarksheet: Marksheet =  new Marksheet();
 
+  //public nameForm:FormGroup;
+  public nameForm = new FormGroup({
+    subCode:new FormControl(''),
+    sec:new FormControl(''),
+    examName:new FormControl(''),
+    name: new FormControl(''),
+    roll: new FormControl(''),
+    sum: new FormControl(''),
+    
+  });
+  
+
+  constructor(private formBuilder: FormBuilder) {
+
+
+  }
   ngAfterViewInit(): void {
-
+    let self = this;
     WebViewer({
       path: '../lib',
       initialDoc: '../files/helper.pdf'
@@ -25,6 +48,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         const file = e.target.files[0];
         if (file) {
           instance.loadDocument(file);
+          self.nameForm.controls['name'].setValue(null);
+          self.nameForm.get('roll').setValue(null);
         }
       };
       instance.disableElements(['toolbarGroup-Shapes','toolbarGroup-Edit',
@@ -54,46 +79,87 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.wvDocumentLoadedHandler = this.wvDocumentLoadedHandler.bind(this);
+    
+    this.nameForm = this.formBuilder.group({
+      subCode:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9]*')]),
+      sec:this.formBuilder.control(null,Validators.required),
+      examName:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9]*')]),
+      name: this.formBuilder.control(null,Validators.required),
+      roll: this.formBuilder.control(null,Validators.required),
+      sum: this.formBuilder.control(null),
+    });
+
+    console.log(this.nameForm.status);
+    console.log(this.nameForm);
   }
 
+
   finalSum() {
-    let fin_sum:any;
-    const { Annotations, annotManager, docViewer } = this.wvInstance;
-    let values = annotManager.getAnnotationsList();
-    let sum = 0;
-    for (let i = 0; i < values.length; i++) {
-      if (values[i].Subject === "Free Text") {
-        if(values[i].intent === "Final Sum"){
-            fin_sum= values[i];
-        }
-        else{
-          let val = values[i].getContents();
-          if (Number(val)) {
-            let marks = Number(val);
-            sum += marks;
+
+    this.marksheet.subDetails.subCode = this.nameForm.controls['subCode'].value;
+    this.marksheet.subDetails.sec = this.nameForm.controls['sec'].value;
+    this.marksheet.subDetails.examName = this.nameForm.controls['examName'].value;
+    this.marksheet.marks.name = this.nameForm.controls['name'].value;
+    this.marksheet.marks.roll = this.nameForm.controls['roll'].value;
+
+    if (confirm('Please confirm that all the values are correct\n' + 'name : ' + this.marksheet.marks.name + '\nroll.no : ' + this.marksheet.marks.roll + '\nsection : ' + this.marksheet.subDetails.sec + '\nsubject code : ' + this.marksheet.subDetails.subCode + '\nexam name : ' + this.marksheet.subDetails.examName)) {
+      let fin_sum: any;
+      const { Annotations, annotManager, docViewer } = this.wvInstance;
+      let values = annotManager.getAnnotationsList();
+      let sum = 0;
+      for (let i = 0; i < values.length; i++) {
+        if (values[i].Subject === "Free Text") {
+          if (values[i].intent === "Final Sum") {
+            fin_sum = values[i];
           }
+          else {
+            let val = values[i].getContents();
+            if (Number(val)) {
+              let marks = Number(val);
+              sum += marks;
+            }
+          }
+
         }
-        
+
       }
-      
+      this.wvInstance.annotManager.deleteAnnotation(fin_sum);
+
+      //this.wvInstance.annotManager.deleteAnnotation(this.sum_annot);
+      const rectangle = new Annotations.FreeTextAnnotation();
+      rectangle.PageNumber = 1;
+      rectangle.X = 400;
+      rectangle.Y = 10;
+      rectangle.Width = 100;
+      rectangle.Height = 100;
+      rectangle.FontSize = '48pt';
+      rectangle.setIntent("Final Sum");
+      rectangle.setPadding(new Annotations.Rect(0, 0, 0, 0));
+      rectangle.setContents(`${sum}`);
+      annotManager.addAnnotation(rectangle);
+      annotManager.redrawAnnotation(rectangle);
+
+      // this.marksheet.subDetails.subCode = this.nameForm.controls['subCode'].value;
+      // this.marksheet.subDetails.sec = this.nameForm.controls['sec'].value;
+      // this.marksheet.subDetails.examName = this.nameForm.controls['examName'].value;
+      // this.marksheet.marks.name = this.nameForm.controls['name'].value;
+      // this.marksheet.marks.roll = this.nameForm.controls['roll'].value;
+      this.marksheet.marks.score = sum;
+
+      console.log(this.marksheet);
+
+      // this.nameForm = this.formBuilder.group({
+      //   subCode: this.formBuilder.control(this.marksheet.subDetails.subCode, [Validators.required,Validators.pattern('[A-Za-z0-9]*')]),
+      //   sec: this.formBuilder.control(this.marksheet.subDetails.sec, Validators.required),
+      //   examName: this.formBuilder.control(this.marksheet.subDetails.examName, [Validators.required,Validators.pattern('[A-Za-z0-9]*')]),
+      //   name: this.formBuilder.control(this.marksheet.marks.name, Validators.required),
+      //   roll: this.formBuilder.control(this.marksheet.marks.roll, Validators.required),
+      //   sum: this.formBuilder.control(this.marksheet.marks.score),
+      // });
+
+      // console.log(this.nameForm);
+
     }
-    console.log("Sum= ", sum);
-    this.wvInstance.annotManager.deleteAnnotation(fin_sum);
-
-    //this.wvInstance.annotManager.deleteAnnotation(this.sum_annot);
-    const rectangle = new Annotations.FreeTextAnnotation();
-    rectangle.PageNumber = 1;
-    rectangle.X = 400;
-    rectangle.Y = 10;
-    rectangle.Width = 100;
-    rectangle.Height = 100;
-    rectangle.FontSize = '48pt';
-    rectangle.setIntent("Final Sum");
-    rectangle.setPadding(new Annotations.Rect(0, 0, 0, 0));
-    rectangle.setContents(`${sum}`);
-    annotManager.addAnnotation(rectangle);
-    annotManager.redrawAnnotation(rectangle);
-
   }
 
   wvDocumentLoadedHandler(instance: any): void {
@@ -113,4 +179,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     // annotManager.drawAnnotations(rectangle.PageNumber);
     // see https://www.pdftron.com/api/web/WebViewer.html for the full list of low-level APIs
   }
+
+  downloadMarks(){
+  
+    this.downloadMarksheet.subDetails.subCode = this.nameForm.controls['subCode'].value;
+    this.downloadMarksheet.subDetails.sec = this.nameForm.controls['sec'].value;
+    this.downloadMarksheet.subDetails.examName = this.nameForm.controls['examName'].value;
+    console.log(this.downloadMarksheet);
+   
+  }
+  
 }
