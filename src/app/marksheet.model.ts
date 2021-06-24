@@ -8,13 +8,13 @@ export class Marksheet {
 }
 
 export class subDetails {
-    subCode: string;
-    sec: string;
-    examName: string;
-  }
+  subCode: string;
+  sec: string;
+  examName: string;
+}
   
-  export class marks {
-    name: string;
-    roll: string;
-    score: number;
-  }
+export class marks {
+  roll: string;
+  name: string;
+  score: number;
+}

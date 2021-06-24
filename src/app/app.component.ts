@@ -1,7 +1,9 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import WebViewer from '@pdftron/webviewer';
-import { Marksheet } from "./marksheet.model";
+import { Marksheet, marks, subDetails } from "./marksheet.model";
+import { MarksService } from './services/marks.service';
+import * as XLSX from 'xlsx';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -21,6 +23,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   
   marksheet: Marksheet = new Marksheet();
   downloadMarksheet: Marksheet =  new Marksheet();
+  subMarks: marks[];
 
   //public nameForm:FormGroup;
   public nameForm = new FormGroup({
@@ -34,7 +37,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   });
   
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private marksService: MarksService
+    ) {
 
 
   }
@@ -123,61 +129,46 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
 
       }
-      this.wvInstance.annotManager.deleteAnnotation(fin_sum);
+      this.marksheet.marks.score = sum;
+      this.marksService.updateMarks(this.marksheet).subscribe(
+        result=>{
+          if(result.status)
+          {
+              this.wvInstance.annotManager.deleteAnnotation(fin_sum);
+              const rectangle = new Annotations.FreeTextAnnotation();
+              rectangle.PageNumber = 1;
+              rectangle.X = 400;
+              rectangle.Y = 10;
+              rectangle.Width = 100;
+              rectangle.Height = 100;
+              rectangle.FontSize = '48pt';
+              rectangle.setIntent("Final Sum");
+              rectangle.setPadding(new Annotations.Rect(0, 0, 0, 0));
+              rectangle.setContents(`${sum}`);
+              annotManager.addAnnotation(rectangle);
+              annotManager.redrawAnnotation(rectangle);
+          }
+          console.log(result);
+        },
+        error=> {
+          console.log(error);
+        }
+      )
+      
 
       //this.wvInstance.annotManager.deleteAnnotation(this.sum_annot);
-      const rectangle = new Annotations.FreeTextAnnotation();
-      rectangle.PageNumber = 1;
-      rectangle.X = 400;
-      rectangle.Y = 10;
-      rectangle.Width = 100;
-      rectangle.Height = 100;
-      rectangle.FontSize = '48pt';
-      rectangle.setIntent("Final Sum");
-      rectangle.setPadding(new Annotations.Rect(0, 0, 0, 0));
-      rectangle.setContents(`${sum}`);
-      annotManager.addAnnotation(rectangle);
-      annotManager.redrawAnnotation(rectangle);
+      
 
-      // this.marksheet.subDetails.subCode = this.nameForm.controls['subCode'].value;
-      // this.marksheet.subDetails.sec = this.nameForm.controls['sec'].value;
-      // this.marksheet.subDetails.examName = this.nameForm.controls['examName'].value;
-      // this.marksheet.marks.name = this.nameForm.controls['name'].value;
-      // this.marksheet.marks.roll = this.nameForm.controls['roll'].value;
-      this.marksheet.marks.score = sum;
+      
 
       console.log(this.marksheet);
-
-      // this.nameForm = this.formBuilder.group({
-      //   subCode: this.formBuilder.control(this.marksheet.subDetails.subCode, [Validators.required,Validators.pattern('[A-Za-z0-9]*')]),
-      //   sec: this.formBuilder.control(this.marksheet.subDetails.sec, Validators.required),
-      //   examName: this.formBuilder.control(this.marksheet.subDetails.examName, [Validators.required,Validators.pattern('[A-Za-z0-9]*')]),
-      //   name: this.formBuilder.control(this.marksheet.marks.name, Validators.required),
-      //   roll: this.formBuilder.control(this.marksheet.marks.roll, Validators.required),
-      //   sum: this.formBuilder.control(this.marksheet.marks.score),
-      // });
-
-      // console.log(this.nameForm);
 
     }
   }
 
   wvDocumentLoadedHandler(instance: any): void {
     instance.setZoomLevel('100%');
-    // you can access docViewer object for low-level APIs
-    // and access classes defined in the WebViewer iframe
-    // const { Annotations, annotManager, docViewer } = this.wvInstance;
-    // const rectangle = new Annotations.RectangleAnnotation();
-    // rectangle.PageNumber = 1;
-    // rectangle.X = 100;
-    // rectangle.Y = 100;
-    // rectangle.Width = 250;
-    // rectangle.Height = 250;
-    // rectangle.StrokeThickness = 5;
-    // rectangle.Author = annotManager.getCurrentUser();
-    // annotManager.addAnnotation(rectangle);
-    // annotManager.drawAnnotations(rectangle.PageNumber);
-    // see https://www.pdftron.com/api/web/WebViewer.html for the full list of low-level APIs
+
   }
 
   downloadMarks(){
@@ -185,8 +176,39 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.downloadMarksheet.subDetails.subCode = this.nameForm.controls['subCode'].value;
     this.downloadMarksheet.subDetails.sec = this.nameForm.controls['sec'].value;
     this.downloadMarksheet.subDetails.examName = this.nameForm.controls['examName'].value;
-    console.log(this.downloadMarksheet);
-   
+    this.marksService.fetchMarks(this.downloadMarksheet).subscribe(
+      result => {
+        if(result.status)
+        {
+            this.MarksheetToExcel(result.data.marks,this.downloadMarksheet.subDetails);
+        }
+        else
+          console.log(result);
+      },
+      error => {
+        console.log(error);
+      }
+    )
+  }
+
+  MarksheetToExcel(marksData: marks[],subDetails: subDetails)
+  {
+      this.subMarks=marksData.sort(function(a,b){
+        if(a.roll<b.roll)
+          return -1;
+        return 1;
+      });
+      this.exportToExcel(this.subMarks,subDetails);
+  }
+
+  exportToExcel(marksData,subDetails: subDetails)
+  {
+    console.log(marksData);
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(marksData,{header: ['roll','name','score']});
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'All_Data');
+    XLSX.writeFile(wb, subDetails.subCode+'_'+subDetails.sec+'_'+subDetails.examName+'_marksheet.xlsx');
+
   }
   
 }
