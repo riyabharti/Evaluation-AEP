@@ -81,6 +81,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       instance.docViewer.on('documentLoaded', function() {
         instance.setZoomLevel('100%'); 
+        instance.setTheme('dark');
       });
     })
   }
@@ -175,6 +176,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   wvDocumentLoadedHandler(instance: any): void {
     instance.setZoomLevel('100%');
+    instance.setTheme('dark');
   }
 
   downloadMarks(){
