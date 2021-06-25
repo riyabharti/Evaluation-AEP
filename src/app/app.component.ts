@@ -1,10 +1,9 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import WebViewer from '@pdftron/webviewer';
-import { Marksheet, marks, subDetails } from "./marksheet.model";
-import { MarksService } from './services/marks.service';
 import * as XLSX from 'xlsx';
-import { BsModalRef, BsModalService, ModalOptions} from 'ngx-bootstrap/modal';
+import { marks, Marksheet, subDetails } from "./marksheet.model";
+import { MarksService } from './services/marks.service';
 
 
 interface HTMLInputEvent extends Event {
