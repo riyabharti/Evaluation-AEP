@@ -8,11 +8,11 @@
 .header {
   height: 60px;
   padding: 8px 8px 8px 16px;
-  background: #00a5e4;
+  background: #101820ff;
   box-sizing: border-box;
   font-size: 1.2em;
   line-height: 44px;
-  color: white;
+  color: #f2aa4cff;
 }
 
 app-webviewer {
@@ -58,13 +58,14 @@ app-webviewer {
   resize: none;
   color: #000000;
   display: inline-block;
+  margin: 10px  10px 10px 6px;
 }
 
 
 .required:after {
-  content:" *";
+  content:"*";
   color: red;
   font-size: 30px;
 }
 
-  
+

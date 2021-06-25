@@ -4,6 +4,8 @@ import WebViewer from '@pdftron/webviewer';
 import { Marksheet, marks, subDetails } from "./marksheet.model";
 import { MarksService } from './services/marks.service';
 import * as XLSX from 'xlsx';
+import { BsModalRef, BsModalService, ModalOptions} from 'ngx-bootstrap/modal';
+
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -20,7 +22,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('viewer') viewer: ElementRef;
   
   wvInstance: any;
-  
+ // modalRef: BsModalRef;
   marksheet: Marksheet = new Marksheet();
   downloadMarksheet: Marksheet =  new Marksheet();
   subMarks: marks[];
@@ -87,8 +89,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.wvDocumentLoadedHandler = this.wvDocumentLoadedHandler.bind(this);
     
     this.nameForm = this.formBuilder.group({
-      subCode:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9]*')]),
-      sec:this.formBuilder.control(null,Validators.required),
+      subCode:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9-]*')]),
+      sec:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9]*')]),
       examName:this.formBuilder.control(null,[Validators.required,Validators.pattern('[ A-Za-z0-9]*')]),
       name: this.formBuilder.control(null,Validators.required),
       roll: this.formBuilder.control(null,Validators.required),
@@ -148,10 +150,15 @@ export class AppComponent implements OnInit, AfterViewInit {
               annotManager.addAnnotation(rectangle);
               annotManager.redrawAnnotation(rectangle);
           }
+          else {
+            alert(result.message);
+          }
           console.log(result);
+         
         },
         error=> {
           console.log(error);
+          alert(error);
         }
       )
       
@@ -168,7 +175,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   wvDocumentLoadedHandler(instance: any): void {
     instance.setZoomLevel('100%');
-
   }
 
   downloadMarks(){
@@ -180,13 +186,21 @@ export class AppComponent implements OnInit, AfterViewInit {
       result => {
         if(result.status)
         {
+          if(result.data){
             this.MarksheetToExcel(result.data.marks,this.downloadMarksheet.subDetails);
+            console.log(result);
+          }else{
+            alert("No data exists this for this combination!!")
+          }
         }
-        else
+        else{
           console.log(result);
+           alert(result.message);
+        }  
       },
       error => {
         console.log(error);
+        alert(error);
       }
     )
   }
@@ -211,4 +225,16 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   }
   
+  // public popUpErrorInfo(message: string, isLarge?: boolean): void {
+  //   const modalConfig: ModalOptions = {
+  //     class: (isLarge) ? 'modal-lg modal-dialog-centered' : 'modal-md modal-dialog-centered',
+  //             backdrop: true,
+  //             ignoreBackdropClick: false,
+  //     initialState: {
+  //       message: message
+  //     },
+  //   }
+  //   this.modalRef = this.modalService.show(ErrorModalComponent, modalConfig);
+  // }
+
 }

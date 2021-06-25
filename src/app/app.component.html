@@ -9,13 +9,13 @@
   </div>
   <div class="col-sm-3 pl-0 pr-8">
     <div class="form-group">
-    <label for="name" class="required">Name: </label>
+    <label for="name" class="required">Name:</label>
     <input type="text" id="name" name="name" class = "textbx" formControlName="name">
   </div>
   </div>
   <div class="col-sm-3 pl-8">
     <div class="form-group">
-    <label for="roll" class="required">Roll.No: </label>
+    <label for="roll" class="required">Roll.No:</label>
     <input type="text" id="roll" name="roll" class = "textbx" formControlName="roll">
   </div>
   </div>
@@ -29,8 +29,8 @@
   
   <div class="col-sm-3 pl-8">
     <div class="form-group">
-    <label for="subCode" class="required">Subject Code: </label>
-    <input type="text" id="subCode" name="subCode" class = "textbx" formControlName="subCode" pattern="^[A-Za-z0-9]*$">
+    <label for="subCode" class="required">Subject Code:</label>
+    <input type="text" id="subCode" name="subCode" class = "textbx" formControlName="subCode" pattern="^[A-Za-z0-9-]*$">
     <div *ngIf="nameForm.controls['subCode'].errors?.pattern">
       Subject Code not valid!!
     </div>
@@ -41,14 +41,17 @@
 
   <div class="col-sm-3 pl-8">
     <div class="form-group">
-    <label for="sec" class="required">Section: </label>
-    <input type="text" id="sec" name="sec" class = "textbx"  formControlName="sec">
+    <label for="sec" class="required">Section:</label>
+    <input type="text" id="sec" name="sec" class = "textbx"  formControlName="sec" pattern="^[A-Za-z0-9]*$">
+    <div *ngIf="nameForm.controls['examName'].errors?.pattern">
+      Section not valid!!
+    </div>
   </div>
 </div>
   
   <div class="col-sm-3 pl-8">
     <div class="form-group">
-    <label for="examName" class="required">Exam Name: </label>
+    <label for="examName" class="required">Exam Name:</label>
     <input type="text" id="examName" name="examName" class = "textbx" formControlName="examName" pattern="^[A-Za-z0-9]*$"> 
     <div *ngIf="nameForm.controls['examName'].errors?.pattern">
       Exam name not valid!!
@@ -63,11 +66,11 @@
 
 </div> 
 <div class = "row header" >
-  <div class="col-sm-2" style="font-family:'Times New Roman', Times, serif; font-size:large;color:red">
-    <b> * Mandatory</b>
+  <div class="col-sm-2" style="font-family:'Times New Roman', Times, serif; font-size:x-large;color:red">
+    <b> *Mandatory</b>
   </div>
-  <div class="col-sm-10" style="font-family:'Times New Roman', Times, serif; font-size:large;color:red">
-    <b> NOTE: No special character or '-' or space is allowed in Subject Code, Section and Exam Name !!</b>
+  <div class="col-sm-9 pr-8" style="font-family:'Times New Roman', Times, serif; font-size:x-large;color:red">
+    <b> NOTE: No special character (except '-') or space is allowed in Subject Code, Section and Exam Name !!</b>
  </div>
 </div>
 
